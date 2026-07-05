@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "09835da45a05e6a651a58830e037465b",
+    "content-hash": "51987133fb1c4924b8d92c54d0ed811d",
     "packages": [
         {
             "name": "brick/math",
@@ -1059,16 +1059,16 @@
         },
         {
             "name": "harrowmykel/traccar-api-php",
-            "version": "dev-composer-dev",
+            "version": "v0.0.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/harrowmykel/traccar-api-php.git",
-                "reference": "9e8ca4e799d8c7874da4650a1a8e0b99746f42d5"
+                "reference": "4a56827677b3d59964c1c9f8331c568b9a8892bc"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/harrowmykel/traccar-api-php/zipball/9e8ca4e799d8c7874da4650a1a8e0b99746f42d5",
-                "reference": "9e8ca4e799d8c7874da4650a1a8e0b99746f42d5",
+                "url": "https://api.github.com/repos/harrowmykel/traccar-api-php/zipball/4a56827677b3d59964c1c9f8331c568b9a8892bc",
+                "reference": "4a56827677b3d59964c1c9f8331c568b9a8892bc",
                 "shasum": ""
             },
             "require": {
@@ -1098,10 +1098,10 @@
                 }
             ],
             "support": {
-                "source": "https://github.com/harrowmykel/traccar-api-php/tree/composer-dev",
+                "source": "https://github.com/harrowmykel/traccar-api-php/tree/v0.0.1",
                 "issues": "https://github.com/harrowmykel/traccar-api-php/issues"
             },
-            "time": "2026-07-05T21:20:09+00:00"
+            "time": "2026-07-05T23:05:27+00:00"
         },
         {
             "name": "laravel/framework",
@@ -7636,9 +7636,7 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": {
-        "harrowmykel/traccar-api-php": 20
-    },
+    "stability-flags": {},
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {

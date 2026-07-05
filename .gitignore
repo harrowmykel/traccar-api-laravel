@@ -1,0 +1,4 @@
+vendor/
+resources/.phpunit.result.cache
+.phpunit.result.cache
+foldertree.txt

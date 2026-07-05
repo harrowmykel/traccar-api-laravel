@@ -1,231 +1,120 @@
-# traccar-api
+# Traccar API Client for Laravel
 
-A PHP client library for the [Traccar](https://www.traccar.org/) GPS tracking platform REST API. Provides a clean, fluent interface for interacting with all Traccar API endpoints, with support for typed response models, multiple authentication methods, and a PSR-compatible HTTP client layer.
+A Laravel wrapper for the [`harrowmykel/traccar-api-php`](https://github.com/harrowmykel/traccar-api-php) package. It integrates the Traccar REST API client seamlessly into Laravel, supporting configuration profiles, a Laravel Facade, dependency injection, and automatic service provider binding.
+
+## Features
+
+- **Multi-Server Configuration**: Define multiple Traccar server profiles in your config and switch between them at runtime.
+- **Laravel Facade**: Access the Traccar API with clean syntax via `TraccarLaravel::`.
+- **Dependency Injection**: Inject `TraccarLaravelClient` directly into your controllers or jobs.
+- **Fluent Traccar PHP Client Integration**: Under the hood, retrieves the underlying `PiccmaQ\TraccarApi\TraccarApi` client instance.
 
 ## Requirements
 
-- PHP 8.1+
-- [Guzzle HTTP](https://github.com/guzzle/guzzle) `^7.13` (installed automatically via Composer)
+- PHP 8.3+
+- Laravel 11.0+ / 12.0+ / 13.0+
+- `harrowmykel/traccar-api-php`
 
 ## Installation
 
+Add the package via Composer:
+
 ```bash
-composer require piccmaq/traccar-api
+composer require harrowmykel/traccar-api-laravel
 ```
 
-## Authentication
+*Note: Since the package is currently in development/VCS, make sure your project's `composer.json` has the appropriate repository settings if installing from a custom VCS source.*
 
-Three authentication modes are available:
+Publish the configuration file:
 
-### Bearer Token
-
-```php
-use PiccmaQ\TraccarApi\TraccarApi;
-
-$api = TraccarApi::withAuthorizationToken('your-api-token');
+```bash
+php artisan vendor:publish --provider="PiccmaQ\TraccarApiLaravel\TraccarProvider" --tag="config"
 ```
 
-### Email & Password
-
-```php
-$api = TraccarApi::withEmailPassword('admin@example.com', 'secret');
-```
-
-Authenticate and store the session token for subsequent requests:
-
-```php
-$response = $api->authenticate();
-$token = $api->getAuthToken(); // bearer token returned by the server
-```
-
-### No Authentication
-
-```php
-$api = TraccarApi::noAuth();
-```
+This will create a `config/traccar.php` file in your application.
 
 ## Configuration
 
-You can also instantiate the client directly via the constructor for full control:
+In `config/traccar.php`, configure your default connection and the details of your Traccar servers.
 
 ```php
-$api = new TraccarApi([
-    'baseUrl'    => 'https://your-traccar-server.example.com',
-    'authMethod' => 'token',
-    'authToken'  => 'your-api-token',
-    'headers'    => ['X-Custom-Header' => 'value'],
-]);
+return [
+
+    'default' => env('TRACCAR_DEFAULT_ACCOUNT', 'default'),
+
+    'servers' => [
+        'default' => [
+            'url' => env('TRACCAR_URL', 'https://demo.traccar.org'),
+            'auth_type' => env('TRACCAR_AUTH_TYPE', 'email'), // 'none', 'email', or 'token'
+            
+            // Required if auth_type is 'email'
+            'username' => env('TRACCAR_USERNAME', 'admin'),
+            'password' => env('TRACCAR_PASSWORD', 'admin'),
+
+            // Required if auth_type is 'token'
+            'auth_token' => env('TRACCAR_AUTH_TOKEN', null),
+        ],
+        // You can define other connections here...
+    ],
+];
 ```
 
-Change the base URL at any time via the fluent setter:
+Make sure to add the corresponding environment variables to your `.env` file:
 
-```php
-$api->setBaseUrl('https://my-other-server.example.com/api');
-```
-
-You can also inject a custom `GuzzleHttp\ClientInterface` implementation, useful for testing or advanced HTTP configuration:
-
-```php
-$api->setHttpClient($myCustomGuzzleClient);
+```env
+TRACCAR_DEFAULT_ACCOUNT=default
+TRACCAR_URL=https://demo.traccar.org
+TRACCAR_AUTH_TYPE=email
+TRACCAR_USERNAME=your_email@example.com
+TRACCAR_PASSWORD=your_password
 ```
 
 ## Usage
 
-Every resource is accessed via a dedicated method on the `TraccarApi` instance. Each method returns a request builder that sends the HTTP request and returns a `Response` object.
+### Using the Facade
 
-### Devices
-
-```php
-// List all devices
-$response = $api->devices()->list();
-$devices  = $response->getStructuredBody(); // array of DeviceModel
-
-// Get a single device
-$response = $api->devices()->get(42);
-$device   = $response->getStructuredBody(); // DeviceModel
-
-// Create a device
-$response = $api->devices()->create([
-    'name'     => 'Truck 01',
-    'uniqueId' => 'IMEI123456',
-]);
-
-// Update a device
-$api->devices()->update(42, ['name' => 'Truck 01 (updated)']);
-
-// Delete a device
-$api->devices()->delete(42);
-
-// Update accumulators
-$api->devices()->updateAccumulators(42, ['hours' => 1000]);
-
-// Upload a device image
-$api->devices()->uploadImage(42, '/path/to/image.jpg');
-```
-
-### Positions
+The `TraccarLaravel` Facade forwards calls directly to the default `TraccarLaravelClient`, which wraps the `TraccarApi` client. To interact with the underlying API client, call the `getClient()` method:
 
 ```php
-$response  = $api->positions()->list(['deviceId' => 42]);
-$positions = $response->getStructuredBody(); // array of PositionModel
+use PiccmaQ\TraccarApiLaravel\Facades\TraccarLaravel;
+
+// Get a list of all devices
+$response = TraccarLaravel::getClient()->devices()->list();
+$devices = $response->getStructuredBody(); // Array of DeviceModel
+
+foreach ($devices as $device) {
+    echo $device->name . ' - ' . $device->status . PHP_EOL;
+}
 ```
 
-### Sessions
+### Dependency Injection
+
+Alternatively, you can type-hint `PiccmaQ\TraccarApiLaravel\TraccarLaravelClient` in your class constructor or method parameters:
 
 ```php
-// Create a session (cookie-based login)
-$api->session()->create('admin@example.com', 'secret');
+use PiccmaQ\TraccarApiLaravel\TraccarLaravelClient;
 
-// Fetch current session user info
-$response = $api->session()->info();
-$user     = $response->getStructuredBody(); // UserModel
-
-// Generate a token (optionally with expiration date)
-$api->session()->generateToken('2026-12-31T23:59:59Z');
-
-// Revoke a token
-$api->session()->revokeToken('some-token');
-
-// End the session
-$api->session()->close();
+class TrackerController extends Controller
+{
+    public function index(TraccarLaravelClient $traccar)
+    {
+        $devices = $traccar->getClient()->devices()->list()->getStructuredBody();
+        
+        return view('devices.index', compact('devices'));
+    }
+}
 ```
 
-### Reports
+### Multi-Server Usage
+
+You can connect to a non-default server dynamically by instantiating `TraccarLaravelClient` with a different configuration profile name:
 
 ```php
-// Route report
-$response = $api->reports()->route([
-    'deviceId' => [42],
-    'from'     => '2026-01-01T00:00:00Z',
-    'to'       => '2026-01-31T23:59:59Z',
-]);
+use PiccmaQ\TraccarApiLaravel\TraccarLaravelClient;
 
-// Trip summary
-$response = $api->reports()->summary([...]);
-
-// Trips
-$response = $api->reports()->trips([...]);
-
-// Stops
-$response = $api->reports()->stops([...]);
-
-// Events
-$response = $api->reports()->events([...]);
-
-// Downloadable reports (pdf, xlsx, etc.)
-$api->reports()->routeDownload('xlsx', [...]);
-```
-
-### Other Resources
-
-| Method | Description |
-|---|---|
-| `$api->server()` | Server info and settings |
-| `$api->users()` | User management |
-| `$api->groups()` | Device groups |
-| `$api->geofences()` | Geofence management |
-| `$api->commands()` | Send commands to devices |
-| `$api->notifications()` | Notification configuration |
-| `$api->drivers()` | Driver management |
-| `$api->attributes()` | Computed attributes |
-| `$api->maintenance()` | Maintenance records |
-| `$api->calendars()` | Calendar management |
-| `$api->permissions()` | User/device permission linking |
-| `$api->events()` | Event queries |
-| `$api->statistics()` | Server statistics |
-| `$api->share()` | Share tokens |
-| `$api->orders()` | Order management |
-| `$api->audit()` | Audit log |
-| `$api->health()` | Server health check |
-| `$api->password()` | Password reset |
-
-## Working with Responses
-
-All request methods return a `PiccmaQ\TraccarApi\Responses\Response` object:
-
-```php
-$response = $api->devices()->list();
-
-$response->isSuccessful();      // true if HTTP 2xx
-$response->getStatusCode();     // e.g. 200
-$response->toArray();           // raw decoded JSON as array
-$response->getBody();           // raw response body string
-$response->getHeaders();        // array of response headers
-
-// Typed model (populated when a model class is pre-configured by the request builder)
-$response->hasStructuredBody();  // true if a typed model was hydrated
-$response->getStructuredBody();  // DeviceModel | DeviceModel[] | null
-```
-
-### Response Models
-
-Resource requests automatically hydrate responses into typed model objects. For example, `$api->devices()->list()` returns an array of `DeviceModel` instances with properties like:
-
-```php
-$device = $response->getStructuredBody()[0];
-
-echo $device->id;       // int
-echo $device->name;     // string
-echo $device->status;   // string
-echo $device->uniqueId; // string
-```
-
-You can also request a custom model hydration on any response using `withModel()`:
-
-```php
-use PiccmaQ\TraccarApi\Models\UserModel;
-
-$response = $api->session()->info()->withModel(UserModel::class);
-```
-
-## Running Tests
-
-```bash
-# Linux / macOS
-composer tests
-
-# Windows
-composer tests_windows
+// Connect using the 'staging' server profile defined in config/traccar.php
+$stagingClient = new TraccarLaravelClient('staging');
+$devices = $stagingClient->getClient()->devices()->list()->getStructuredBody();
 ```
 
 ## License

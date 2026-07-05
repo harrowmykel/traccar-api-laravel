@@ -10,7 +10,7 @@ class TraccarProvider extends ServiceProvider
     {
         $this->mergeConfigFrom(__DIR__ . '/../config/traccar.php', 'traccar');
         $this->app->singleton(TraccarLaravelClient::class, static function (): TraccarLaravelClient {
-            return new TraccarLaravelClient(config('traccar.default_server'));
+            return new TraccarLaravelClient(config('traccar.default'));
         });
         $this->app->alias(TraccarLaravelClient::class, 'traccar_laravel');
     }

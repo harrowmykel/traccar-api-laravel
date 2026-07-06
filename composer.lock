@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "51987133fb1c4924b8d92c54d0ed811d",
+    "content-hash": "00db672c6bc018be620eaeb7fa5c9d3d",
     "packages": [
         {
             "name": "brick/math",
@@ -1059,16 +1059,16 @@
         },
         {
             "name": "harrowmykel/traccar-api-php",
-            "version": "v0.0.1",
+            "version": "0.0.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/harrowmykel/traccar-api-php.git",
-                "reference": "4a56827677b3d59964c1c9f8331c568b9a8892bc"
+                "reference": "267437f773914a0e331ad370131b8c8bf653871b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/harrowmykel/traccar-api-php/zipball/4a56827677b3d59964c1c9f8331c568b9a8892bc",
-                "reference": "4a56827677b3d59964c1c9f8331c568b9a8892bc",
+                "url": "https://api.github.com/repos/harrowmykel/traccar-api-php/zipball/267437f773914a0e331ad370131b8c8bf653871b",
+                "reference": "267437f773914a0e331ad370131b8c8bf653871b",
                 "shasum": ""
             },
             "require": {
@@ -1098,10 +1098,10 @@
                 }
             ],
             "support": {
-                "source": "https://github.com/harrowmykel/traccar-api-php/tree/v0.0.1",
+                "source": "https://github.com/harrowmykel/traccar-api-php/tree/0.0.4",
                 "issues": "https://github.com/harrowmykel/traccar-api-php/issues"
             },
-            "time": "2026-07-05T23:05:27+00:00"
+            "time": "2026-07-05T23:07:40+00:00"
         },
         {
             "name": "laravel/framework",

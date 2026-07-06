@@ -20,7 +20,7 @@
     "scripts": {},
     "require": {
         "php": "^8.3",
-        "harrowmykel/traccar-api-php": "0.0.1",
+        "harrowmykel/traccar-api-php": "^0.0.1",
         "laravel/framework": "^11.29|^12.12|^13.0"
     },
     "require-dev": {
